@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <ul role="list" class="divide-y divide-gray-100">
+      {% for member in members %}
+        <li class="flex justify-between gap-x-6 py-5">
+          <div class="flex min-w-0 gap-x-4">
+            <img class="h-12 w-12 flex-none rounded-full bg-gray-50" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMQAAACUCAMAAAD79nauAAAAMFBMVEXk5ueutLfZ3N2nrrHo6uuqsLS4vcDr7e7GyszJzc/h4+TT1tjBxsi0urzd4OG7wMPB2SiqAAAErklEQVR4nO2c7XLjIAxFDQhsPgzv/7YLSdMm2yS2QImUjs+P7XR2d8Z3JCQBEtN08BCAKYSso/dLxUedQ5iA+6tQVAXRJ6eMMbZRf6o1eR3gY3RAiEtRVv2HNar4+BnmAPB3FFyErMV/gDXmuD4QcGGNwmVAXh8Z4docWbAKmJLZlNBU2EXs0gDtts3wJcNpmSogPlzPd1SoKFEFLAgNzaW8PJeChJFwIklTAQkrobLIirUddqjUICWJpUeDUsZzf/gPNS51YsTEKMiouHSNVVKSN+woNR6qWLm//szctai/VSQJpgA9oqEioQCBrdJ7C8etoGrwgxqU8uymCG5YhMvMGggMoVRkFpF3byGe4AKrhv5cfY3RrCKmoRxxwRZWDZlCQzUFqz/FXQcD2yJYo+x4fD2zznwaAo03VVPwaaDypravYNPQtbG+iy1si2Km0lBhWxQzlTdV2IJsphNh2XYVkSo4VbhODEgq2AsLk4iZLDhVuLbacyEUUZjC0zy6u77GcVniT4gg1HBY4hBBtZtocFWAfyJPQOfViigRpLUT2y6bsopluzICQhFs57GUmyK+7SldjHV8ZzaebGUznp6RrWzDeUVBVngwngBS+RPvFerozekXvBcUBDd2DeYbeRJ/YjyJbYAmWdrc16cElazlbhiiMMXK3hhBcLzP338GeVCCiH5lGAxQlr+1Yxpus1klaKgZb6QMtLwtEd/AwF6bb1v6i+7mCBnNc2dC5yG/LUKc6UTuKgQte7vWLV2JW0KGuKYr5wnTUAG0HaRNHjQAt7r5GiGegroS5rry3SbubGu0Tk6O+wXkxe6R4eUt6RuCMxsyTJKVHe4B2T0pCK1xwq1wBua8PBSRMudZHwaYISa3KlsXSPOt+mf9sboUp/kTzHABYNJxSaW4RilpiXqSNZG2DwAIOWutcw4fKeAkAWC+cPqN+5P20z4cpvbGwnJxp9Lcyceow/kvZdMcKC6uBlLzK+mdHlywtr23INS32lcF7ZMyW6muhqr6b4qPYRL1BkZbv3GXgOukZ8sSsxAdLZb6tNqOY5vqcdUimd23AE4Kuo9s6v+sKTBwypgnXyjuJ9akmWLW0xIJjeN4zKP60bNiFY9R/s1nUDDFFRGK9mHrXul9waomtEIuoWHeJqNaofSHow3s+padK+jUPQe/C/fyZ4eAbgLniQz90t3fPHpBtw+7vC5t7H00iEDF62ZC9MCDCmj8K2oRmCjnVraxhT5MVVd6q4YWbaldCkiGx7HQ3nDDW5fDD5TPDtHMv3dg6Z6AQr0DJlQFxJeVStsYGhUj/QJSVDD60kXFsAjQzBrU+PUeBMrhp15G80Vht0NjKHeTTg31M9Rhx5bk/qemi26ImqgJ6O/tEuJMZ3oPpQiHt4axnfPapEO+w/TNugDZ8yhE9JgC3b/0YnqagEcbj+npeWpPQr1xCzrMkr7JQQS+/5TyOQsisMcfRGM2tKAnXsQt6wayVSoL9CaFfNBUpDeh/Yn3cOARuP74IKl+vQYlQuaSwM2okr3vRwxqUUjaSdyA2aZKq8K/wYyCiUx1DYsQkYxUEO7U+kBlghBx7geVCEbEwcHBwcE4/wAhlUh0ezB2rAAAAABJRU5ErkJggg==" alt="" />
+            <div class="min-w-0 flex-auto">
+              <p class="text-sm font-semibold leading-6 text-gray-900">{{ member.username }}</p>
+            </div>
+          </div>
+          <div class="hidden shrink-0 sm:flex sm:flex-col sm:items-end">
+            <p class="text-sm leading-6 text-gray-900">{{ member.email }}</p>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
