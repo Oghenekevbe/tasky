@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block content %}
+  <div class="container mx-auto">
+    <h1 class="text-3xl font-bold">Tasky Dashboard</h1>
+    <button id="addTaskButton" class="bg-blue-500 text-white px-4 py-2 rounded">+ Add Task</button>
+    <!-- Modal -->
+    <div id="form-modal" title="Add Task" style="display:none;">
+      <form id="TaskForm" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+      </form>
+    </div>
+    <div class="flex space-x-4">
+      <div id="in-progress-tasks" class="w-1/3">
+        <h2 class="text-2xl font-bold">In Progress</h2>
+        <button id="in-progress" class="bg-blue-500 text-white px-4 py-2 rounded">In Progress</button>
+        <div id="in-progress-container"></div>
+      </div>
+
+      <div id="completed-tasks" class="w-1/3">
+        <h2 class="text-2xl font-bold">Completed</h2>
+        <button id="completed" class="bg-green-500 text-white px-4 py-2 rounded">Completed</button>
+        <div id="completed-container"></div>
+      </div>
+
+      <div id="overdue-tasks" class="w-1/3">
+        <h2 class="text-2xl font-bold">Overdue</h2>
+        <button id="overdue" class="bg-red-500 text-white px-4 py-2 rounded">Overdue</button>
+        <div id="overdue-container"></div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
