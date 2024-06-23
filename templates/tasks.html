@@ -1,1 +1,28 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}
+  Tasks List
+{% endblock %}
+
+{% block content %}
+  <div class="container">
+    {% for task in tasks %}
+      <a href="{% url 'task_detail' task.pk %}">
+        <div class="px-2 mx-2 my-2 bg-blue-500 py-2 rounded">
+          <h6>{{ task.title }}</h6>
+          <h6>{{ task.priority }}</h6>
+          <h6>{{ task.assigned_to }}</h6>
+          <h6>{{ task.status }}</h6>
+          <h6>{{ task.due_date|naturaltime }}</h6>
+          <h6>{{ task.category }}</h6>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <!-- Include any necessary scripts here if needed -->
+{% endblock %}

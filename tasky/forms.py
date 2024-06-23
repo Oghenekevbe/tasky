@@ -26,8 +26,7 @@ class TaskForm(forms.ModelForm):
         ('Overdue', 'Overdue'),], widget=forms.Select(attrs={'id': 'status'}))
     priority = forms.ChoiceField(choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')], widget=forms.Select(attrs={'id': 'priority'}))
     category = forms.CharField(widget=forms.TextInput(attrs={'id': 'category'}))
-    assigned_to = forms.Select(attrs={'id': 'assigned_to'})
-
+    assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), widget=forms.Select(attrs={'id': 'assigned_to'}))
 
     class Meta:
         model = Task

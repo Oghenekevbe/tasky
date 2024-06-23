@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
 from django.urls import reverse_lazy
-from django.views.generic import CreateView,ListView,TemplateView
+from django.views.generic import CreateView,ListView,TemplateView,DetailView
 from .forms import UserCreationForm,TaskForm
-
+from django.utils import timezone
+from django.http import JsonResponse
+from .models import Task
 User = get_user_model()
 
 
@@ -17,8 +19,22 @@ class MembersListView(ListView):
     template_name = 'members.html' 
     context_object_name = 'members'
 
+
+
 class TasksView(TemplateView):
-    template_name = 'tasks.html' 
+    template_name = 'tasks.html'  # Specify the template name
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tasks'] = Task.objects.all()  # Queryset of all tasks
+        return context
+    
+class TaskDetail(DetailView):
+    template_name = 'task_detail.html'
+    model = Task 
+    context_object_name = 'task'
+    
+
 
 
 class DashboardView(TemplateView):
@@ -29,3 +45,4 @@ class DashboardView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['form'] = self.form_class()
         return context
+    
