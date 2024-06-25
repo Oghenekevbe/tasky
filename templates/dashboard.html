@@ -7,14 +7,37 @@
 {% endblock %}
 
 {% block content %}
+  <script>
+    var jwt_access_token = '{{ jwt_access_token }}'
+    var jwt_refresh_token = '{{ jwt_refresh_token }}'
+  </script>
+
   <div class="container mx-auto">
     <h1 class="text-3xl font-bold">Tasky Dashboard</h1>
+    <button>Profile button</button>
+    <div class="profile-container">
+      {% if user.is_authenticated %}
+        <a href="{% url 'change_password' %}">Change Password</a>
+        <a href="{% url 'logout' %}">Logout</a>
+      {% endif %}
+    </div>
+
     <div class="search-container">
       <input type="text" id="search" placeholder="Search tasks..." class="form-control" />
     </div>
     <button id="get-highlighted-task-button">Get Highlighted Task</button>
-    <button type="button">sort</button>
-    <div class="filter-sort-container">
+    <button id="toggle-sort-button" type="button">Sort</button>
+    <button id="toggle-filter-button" type="button">Filter</button>
+
+    <div id="sort-container">
+      <select id="sort-due-date">
+        <option value="">Sort by Due Date</option>
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+    </div>
+
+    <div id="filter-container">
       <select id="filter-priority">
         <option value="">Filter by Priority</option>
         <option value="High">High</option>
@@ -24,15 +47,36 @@
 
       <select id="filter-category">
         <option value="">Filter by Category</option>
-        <option value="Work">Work</option>
-        <option value="Personal">Personal</option>
-        <option value="Others">Others</option>
-      </select>
-
-      <select id="sort-due-date">
-        <option value="">Sort by Due Date</option>
-        <option value="asc">Ascending</option>
-        <option value="desc">Descending</option>
+        <option value="UX Design">UX Design</option>
+        <option value="Front-End Development">Front-End Development</option>
+        <option value="HTML/CSS Development">HTML/CSS Development</option>
+        <option value="JavaScript Development">JavaScript Development</option>
+        <option value="Front-End Frameworks">Front-End Frameworks</option>
+        <option value="Back-End Development">Back-End Development</option>
+        <option value="API Development">API Development</option>
+        <option value="Database Management">Database Management</option>
+        <option value="Server-Side Scripting">Server-Side Scripting</option>
+        <option value="Data Science">Data Science</option>
+        <option value="Data Analysis">Data Analysis</option>
+        <option value="Machine Learning">Machine Learning</option>
+        <option value="Data Engineering">Data Engineering</option>
+        <option value="DevOps">DevOps</option>
+        <option value="Continuous Integration/Continuous Deployment (CI/CD)">Continuous Integration/Continuous Deployment (CI/CD)</option>
+        <option value="Infrastructure as Code">Infrastructure as Code</option>
+        <option value="Monitoring and Logging">Monitoring and Logging</option>
+        <option value="Quality Assurance (QA)">Quality Assurance (QA)</option>
+        <option value="Project Management">Project Management</option>
+        <option value="Cybersecurity">Cybersecurity</option>
+        <option value="Mobile Development">Mobile Development</option>
+        <option value="iOS Development">iOS Development</option>
+        <option value="Android Development">Android Development</option>
+        <option value="Cross-Platform Development">Cross-Platform Development</option>
+        <option value="Technical Support">Technical Support</option>
+        <option value="Documentation">Documentation</option>
+        <option value="Testing">Testing</option>
+        <option value="Unit Testing">Unit Testing</option>
+        <option value="Integration Testing">Integration Testing</option>
+        <option value="End-to-End Testing">End-to-End Testing</option>
       </select>
     </div>
 

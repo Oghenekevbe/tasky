@@ -1,12 +1,84 @@
 $(document).ready(function () {
 
+    //getting our csrf token for our crud apis
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    // jwt tokens for the crud APIs
+    const jwtAccessToken = window.jwt_access_token;
+    const jwtRefreshToken = window.jwt_refresh_token;
+
+    // Function to check if the JWT token is expired
+    function isTokenExpired(token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.exp < Date.now() / 1000;
+        } catch (e) {
+            alert('Failed to parse token: ' + e.message);
+            return true;
+        }
+    }
+
+    // Function to refresh the JWT access token using the refresh token
+    function refreshToken() {
+        return $.ajax({
+            url: 'api/token/refresh/',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify({
+                'refresh': jwtRefreshToken
+            })
+        }).then((data) => {
+            window.jwt_access_token = data.access;
+        }).catch((error) => {
+            alert('Error refreshing token: ' + error.message);
+            throw error;
+        });
+    }
+
+    // Function to fetch tasks, with token expiry check and refresh logic
+    function fetchTasks() {
+        if (isTokenExpired(window.jwt_access_token)) {
+            refreshToken().then(() => {
+                // Token is refreshed, proceed to load tasks
+                loadTasks();
+            }).catch(() => {
+                alert('Session expired. Please log in again.');
+            });
+        } else {
+            // Token is still valid, load tasks
+            loadTasks();
+        }
+    }
+
+
+    // Call fetchTasks to initiate the process
+    fetchTasks();
+
 
 
     // CRUD METHODS FOR APIS GOTTEN FROM THE BACKEND
 
     //GET TASKS
 
-    function loadTasks(searchTerm) {
+    function loadTasks(searchTerm = '') {
         const priority = $('#filter-priority').val();
         const category = $('#filter-category').val();
         const sortDueDate = $('#sort-due-date').val();
@@ -14,6 +86,10 @@ $(document).ready(function () {
         $.ajax({
             url: 'api/tasks/',
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json'
+            },
             success: function (data) {
                 $('#in-progress-container').empty();
                 $('#completed-container').empty();
@@ -23,8 +99,9 @@ $(document).ready(function () {
                 let filteredTasks = data.filter(task => {
                     return (priority === "" || task.priority === priority) &&
                         (category === "" || task.category === category) &&
-                        (searchTerm === "" || task.title.toLowerCase().includes(searchTerm.toLowerCase()));
+                        (searchTerm === "" || (task && task.title && task.title.toLowerCase().includes(searchTerm.toLowerCase())));
                 });
+
                 // Sort tasks by due date
                 filteredTasks.sort((a, b) => {
                     const dateA = new Date(a.due_date);
@@ -71,8 +148,6 @@ $(document).ready(function () {
                     return 0; // Default case
                 });
 
-
-
                 // Render tasks
                 filteredTasks.forEach(task => {
                     const humanizedDate = moment(task.due_date).fromNow();
@@ -82,16 +157,16 @@ $(document).ready(function () {
                         <div id="task" class="task p-4 mb-2 bg-white shadow-md rounded" data-task-id="${task.id}" style="cursor: pointer;">
                             <div class="flex space-x-2">
                                 <button class="priority bg-blue-500 text-white px-4 py-2 rounded">${task.priority}</button>
-                                <button class="due_date bg-blue-500 text-white px-4 py-2 rounded" data-due-dat="${task.status.toLowerCase() === 'completed' ? formattedDate : humanizedDate}">${task.status.toLowerCase() === 'completed' ? formattedDate : humanizedDate}</button>
+                                <button class="due_date bg-blue-500 text-white px-4 py-2 rounded" data-due-dat="${task.due_date}">${task.status.toLowerCase() === 'completed' ? formattedDate : humanizedDate}</button>
                                 <button class="category bg-blue-500 text-white px-4 py-2 rounded">${task.category}</button>
                             </div>
                             <h2 class=" text-xl font-semibold">${task.title}</h2>
                             <h6 class="description">${task.description}</h6>
-                        </div>
-                        <div class="title flex justify-end space-x-2">
-                        <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
-                            <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
-                            <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
+                            <div class="title flex justify-end space-x-2">
+                                <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
+                                <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
+                                <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
+                            </div>
                         </div>
                     `;
                     switch (task.status.toLowerCase()) {
@@ -110,15 +185,15 @@ $(document).ready(function () {
                 });
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                console.error('Error loading tasks:', textStatus, errorThrown);
-                alert('Failed to load tasks. Please try again later.');
+                const errorMessage = xhr.responseText;
+                alert('Error deleting task: ' + errorMessage);
+
             }
         });
     }
 
     // Initial load of tasks
     loadTasks('');
-
 
 
     // this will reload the dom without page refresh every five minues
@@ -154,6 +229,10 @@ $(document).ready(function () {
         $.ajax({
             url: url,
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json'
+            },
             success: function (task) {
                 // Populate task details
                 $('#task-title').text(task.title);
@@ -168,8 +247,8 @@ $(document).ready(function () {
                 $("#task-modal").dialog("open");
             },
             error: function (xhr, status, error) {
-                console.error('Error:', error);
-                alert('Error fetching task details');
+                const errorMessage = xhr.responseText;
+                alert('Error deleting task: ' + errorMessage);
             }
         });
     }
@@ -234,13 +313,16 @@ $(document).ready(function () {
         };
 
 
-        const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
 
         // AJAX POST request for creating a new task
         $.ajax({
             url: 'api/tasks/',
             method: 'POST',
-            headers: { 'X-CSRFToken': csrftoken },
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
             data: formData,
             success: function (response) {
                 $("#create-task-modal").dialog("close");
@@ -248,7 +330,6 @@ $(document).ready(function () {
                 loadTasks();
             },
             error: function (xhr, status, error) {
-                console.error('Error:', error);
                 const errorMessage = xhr.responseText;
                 alert('Error submitting task: ' + errorMessage);
             }
@@ -261,7 +342,6 @@ $(document).ready(function () {
     // Handle edit button click
     $('.container').on('click', '.edit-button', function () {
         const taskId = $(this).data('task-id');
-        console.log('Task ID is =', taskId);
         editTask(taskId);
     });
 
@@ -282,15 +362,16 @@ $(document).ready(function () {
 
     // Function to fetch and populate task details for editing
     function editTask(taskId) {
-        console.log('now in edit task oo for', taskId);
-        console.log('Now in editTask function for Task ID:', taskId);
+
         const url = `/api/tasks/${taskId}/`;
-        console.log('Constructed URL:', url);
         $.ajax({
             url: `/api/tasks/${taskId}/`,
             method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json',
+            },
             success: function (task) {
-                console.log('task is = ', task);
                 // Populate form fields with task details
                 $('#EditTaskForm #title').val(task.title);
                 $('#EditTaskForm #description').val(task.description);
@@ -302,14 +383,13 @@ $(document).ready(function () {
 
                 // Set hidden field value to "edit" and task ID
                 $("#EditTaskForm #task_action").val(taskId);
-                console.log('the task id set in hidden is ', taskId);
 
                 // Open modal for editing
                 $("#edit-task-modal").dialog("open");
             },
             error: function (xhr, status, error) {
-                console.error('Error:', error);
-                alert('Error fetching task details');
+                const errorMessage = xhr.responseText;
+                alert('Error deleting task: ' + errorMessage);
             }
         });
     }
@@ -333,9 +413,7 @@ $(document).ready(function () {
         }
 
         const taskId = $("#EditTaskForm #task_action").val();
-        console.log('checking if we received the taskid ', taskId);
         const rawDueDate = $('#EditTaskForm .datetimepicker').val();
-        console.log('rawDueDate', rawDueDate);
 
         // Validate and parse the date
         const momentDate = moment(rawDueDate, 'YYYY/MM/DD HH:mm', true);
@@ -356,7 +434,6 @@ $(document).ready(function () {
             assigned_to: $('#EditTaskForm #assigned_to').val(),
         };
 
-        const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
 
 
         // AJAX PUT request for updating a task
@@ -364,7 +441,11 @@ $(document).ready(function () {
             url: `api/tasks/${taskId}/`,
 
             method: 'PUT',
-            headers: { 'X-CSRFToken': csrftoken },
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
             data: formData,
             success: function (response) {
                 $("#edit-task-modal").dialog("close");
@@ -372,7 +453,6 @@ $(document).ready(function () {
                 loadTasks(); // Assume there's a function to reload tasks
             },
             error: function (xhr, status, error) {
-                console.error('Error:', error);
                 const errorMessage = xhr.responseText;
                 alert('Error updating task: ' + errorMessage);
             }
@@ -422,19 +502,21 @@ $(document).ready(function () {
     }
 
     function deleteTask(taskId) {
-        const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
 
         // AJAX DELETE request
         $.ajax({
             url: `api/tasks/${taskId}/`,
             method: 'DELETE',
-            headers: { 'X-CSRFToken': csrftoken },
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
             success: function (response) {
                 alert("Task deleted successfully");
                 loadTasks(); // Refresh task list after deletion
             },
             error: function (xhr, status, error) {
-                console.error('Error:', error);
                 const errorMessage = xhr.responseText;
                 alert('Error deleting task: ' + errorMessage);
             }
@@ -451,53 +533,92 @@ $(document).ready(function () {
         opacity: 0.6,
         revert: true,
         stop: function (event, ui) {
-            var taskId = ui.item.data('task-id');
-            var newStatus = ui.item.parent().attr('id').replace('-container', '');
+            const taskId = ui.item.data('task-id');
+            let newStatus = ui.item.parent().attr('id').replace('-container', '');
 
-            // Get the entire task element
-            const taskElement = ui.item;
+            // Capitalize first letter for consistency
+            newStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
 
-            const taskData = {
-                title: taskElement.find('.text-xl.font-semibold').text(),
-                status: newStatus,
-                due_date: taskElement.find('.due_date').data('due-date'),
-                description: taskElement.find('.description').text(), // Assuming description is within a class 'description'
-                priority: taskElement.find('.priority').text(), // Assuming priority is in button with class 'priority'
-                category: taskElement.find('.category').text(), // Assuming category is in button with class 'category'
-                // ... extract due date based on your logic (see below)
-            };
+            if (newStatus === 'In-progress') {
+                newStatus = 'In Progress'; // Correct assignment if the status is 'In-progress'
+            }
 
-            updateTaskStatus(taskId, newStatus, taskData);
+            updateTaskStatus(taskId, newStatus);
         }
 
 
     }).disableSelection();
 
 
-    function updateTaskStatus(taskId, newStatus, taskData) {
-        console.log('this is the taskdata ooo', taskData);
-        taskData.status = newStatus.charAt(0).toUpperCase() + newStatus.slice(1); // Capitalize first letter
 
-        // AJAX PUT request to update task status
+
+
+    function updateTaskStatus(taskId, newStatus) {
+        const url = `/api/tasks/${taskId}/`;
+
         $.ajax({
-            url: `api/tasks/${taskId}/`,
-            method: 'PUT',
-            headers: { 'X-CSRFToken': csrftoken },
-            data: { status: newStatus }, // Only update status field
-            success: function (response) {
-                console.log("data being uploaded", data);
-                console.log(`Task ${taskId} status updated to ${newStatus}`);
-                // Optionally, perform any UI update after successful status change
-                loadTasks(); // Reload tasks after status change
+            url: url,
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${jwtAccessToken}`,
+                'Content-Type': 'application/json',
+            },
+            success: function (task) {
+
+                // Populate form fields with task details
+                $('#EditTaskForm #title').val(task.title);
+                $('#EditTaskForm #description').val(task.description);
+                $('#EditTaskForm .datetimepicker').val(moment(task.due_date).format('YYYY/MM/DD HH:mm'));
+                $('#EditTaskForm #status').val(newStatus);
+                $('#EditTaskForm #priority').val(task.priority);
+                $('#EditTaskForm #category').val(task.category);
+                $('#EditTaskForm #assigned_to').val(task.assigned_to);
+
+                // Set hidden field value to "edit" and task ID
+                $("#EditTaskForm #task_action").val(taskId);
+
+
+                // AJAX PUT request to update task
+                const formData = {
+                    title: task.title,
+                    description: task.description,
+                    due_date: task.due_date,
+                    status: newStatus,
+                    priority: task.priority,
+                    category: task.category,
+                    assigned_to: task.assigned_to,
+                };
+
+                const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+
+                $.ajax({
+                    url: url,
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${jwtAccessToken}`,
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    data: formData,
+                    success: function (response) {
+                        alert('Task status updated successfully. Please endeavour to edit the task due date immediately');
+                        loadTasks(); // Reload tasks after update
+                    },
+                    error: function (xhr, status, error) {
+                        const errorMessage = xhr.responseText;
+                        alert('Error deleting task: ' + errorMessage);
+                    }
+                });
+
             },
             error: function (xhr, status, error) {
-                console.error('Error:', error);
-                console.log('xhr', xhr);
-                console.log('status', status);
-                // Optionally handle error scenario
+                const errorMessage = xhr.responseText;
+                alert('Error deleting task: ' + errorMessage);
             }
         });
     }
+
+
 
 
     // Initialize modal dialog for highlighted elements
@@ -554,24 +675,37 @@ $(document).ready(function () {
         loadTasks($(this).val());
     });
 
-    // Hide filter-sort-container by default
-    $('.filter-sort-container').hide();
 
-    // Function to handle sorting and toggling visibility
-    function SortingFunction() {
-        $('.filter-sort-container').toggle(); // Toggle visibility                  
+    // Function to handle toggling sort options visibility
 
-        // Event listener for changes in filters or sort options
-        $('#filter-priority, #filter-category, #sort-due-date').change(function () {
-            loadTasks(); // Reload tasks when any filter or sort option changes
-        });
+    // Hide filter and sort-container by default
+    $('#sort-container').hide();
+    $('#filter-container').hide();
+
+
+    function toggleSort() {
+        $('#sort-container').toggle();
     }
 
-    // Click handler for the Sort button
-    $('button[type="button"]').click(function () {
-        SortingFunction(); // Call SortingFunction when Sort button is clicked
+    // Function to handle toggling filter options visibility
+    function toggleFilter() {
+        $('#filter-container').toggle();
+    }
+
+    // Event listener for the sort button
+    $('#toggle-sort-button').click(function () {
+        toggleSort();
     });
 
+    // Event listener for the filter button
+    $('#toggle-filter-button').click(function () {
+        toggleFilter();
+    });
+
+    // Event listener for changes in filters or sort options
+    $('#filter-priority, #filter-category, #sort-due-date').change(function () {
+        loadTasks(); // Reload tasks when any filter or sort option changes
+    });
 
 
 
