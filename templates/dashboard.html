@@ -7,151 +7,156 @@
 {% endblock %}
 
 {% block content %}
+  {% comment %}script to get the jwt tokens from the backend{% endcomment %}
   <script>
     var jwt_access_token = '{{ jwt_access_token }}'
     var jwt_refresh_token = '{{ jwt_refresh_token }}'
   </script>
 
-  <div class="container mx-auto">
-    <h1 class="text-3xl font-bold">Tasky Dashboard</h1>
-    <button>Profile button</button>
-    <div class="profile-container">
-      {% if user.is_authenticated %}
-        <a href="{% url 'change_password' %}">Change Password</a>
-        <a href="{% url 'logout' %}">Logout</a>
-      {% endif %}
-    </div>
+  <!-- Main content -->
 
-    <div class="search-container">
-      <input type="text" id="search" placeholder="Search tasks..." class="form-control" />
-    </div>
-    <button id="get-highlighted-task-button">Get Highlighted Task</button>
-    <button id="toggle-sort-button" type="button">Sort</button>
-    <button id="toggle-filter-button" type="button">Filter</button>
-
-    <div id="sort-container">
-      <select id="sort-due-date">
-        <option value="">Sort by Due Date</option>
-        <option value="asc">Ascending</option>
-        <option value="desc">Descending</option>
-      </select>
-    </div>
-
-    <div id="filter-container">
-      <select id="filter-priority">
-        <option value="">Filter by Priority</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
-
-      <select id="filter-category">
-        <option value="">Filter by Category</option>
-        <option value="UX Design">UX Design</option>
-        <option value="Front-End Development">Front-End Development</option>
-        <option value="HTML/CSS Development">HTML/CSS Development</option>
-        <option value="JavaScript Development">JavaScript Development</option>
-        <option value="Front-End Frameworks">Front-End Frameworks</option>
-        <option value="Back-End Development">Back-End Development</option>
-        <option value="API Development">API Development</option>
-        <option value="Database Management">Database Management</option>
-        <option value="Server-Side Scripting">Server-Side Scripting</option>
-        <option value="Data Science">Data Science</option>
-        <option value="Data Analysis">Data Analysis</option>
-        <option value="Machine Learning">Machine Learning</option>
-        <option value="Data Engineering">Data Engineering</option>
-        <option value="DevOps">DevOps</option>
-        <option value="Continuous Integration/Continuous Deployment (CI/CD)">Continuous Integration/Continuous Deployment (CI/CD)</option>
-        <option value="Infrastructure as Code">Infrastructure as Code</option>
-        <option value="Monitoring and Logging">Monitoring and Logging</option>
-        <option value="Quality Assurance (QA)">Quality Assurance (QA)</option>
-        <option value="Project Management">Project Management</option>
-        <option value="Cybersecurity">Cybersecurity</option>
-        <option value="Mobile Development">Mobile Development</option>
-        <option value="iOS Development">iOS Development</option>
-        <option value="Android Development">Android Development</option>
-        <option value="Cross-Platform Development">Cross-Platform Development</option>
-        <option value="Technical Support">Technical Support</option>
-        <option value="Documentation">Documentation</option>
-        <option value="Testing">Testing</option>
-        <option value="Unit Testing">Unit Testing</option>
-        <option value="Integration Testing">Integration Testing</option>
-        <option value="End-to-End Testing">End-to-End Testing</option>
-      </select>
-    </div>
-
-    <button id="addTaskButton" class="bg-blue-500 text-white px-4 py-2 rounded">+ Add Task</button>
-
-    {% comment %}Task Containers{% endcomment %}
-
-    <div class="flex space-x-4">
-      <div id="in-progress-tasks" class="w-1/3">
-        <h2 class="text-2xl font-bold">In Progress</h2>
-        <button id="in-progress" class="bg-blue-500 text-white px-4 py-2 rounded">In Progress</button>
-        <div id="in-progress-container"></div>
+  <div class="container sm md lg xl 2xl flex-1 mx-auto">
+    <div class="container mx-auto">
+      <h1 class="text-3xl font-bold">Tasky Dashboard</h1>
+      <button>Profile button</button>
+      <div class="profile-container">
+        {% if user.is_authenticated %}
+          <a href="{% url 'change_password' %}">Change Password</a>
+          <a href="{% url 'logout' %}">Logout</a>
+        {% endif %}
       </div>
 
-      <div id="completed-tasks" class="w-1/3">
-        <h2 class="text-2xl font-bold">Completed</h2>
-        <button id="completed" class="bg-green-500 text-white px-4 py-2 rounded">Completed</button>
-        <div id="completed-container"></div>
+      <div class="search-container">
+        <input type="text" id="search" placeholder="Search tasks..." class="form-control" />
+      </div>
+      <button id="get-highlighted-task-button">Get Highlighted Task</button>
+      <button id="toggle-sort-button" type="button">Sort</button>
+      <button id="toggle-filter-button" type="button">Filter</button>
+
+      <div id="sort-container">
+        <select id="sort-due-date">
+          <option value="">Sort by Due Date</option>
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
       </div>
 
-      <div id="overdue-tasks" class="w-1/3">
-        <h2 class="text-2xl font-bold">Overdue</h2>
-        <button id="overdue" class="bg-red-500 text-white px-4 py-2 rounded">Overdue</button>
-        <div id="overdue-container"></div>
+      <div id="filter-container">
+        <select id="filter-priority">
+          <option value="">Filter by Priority</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+
+        <select id="filter-category">
+          <option value="">Filter by Category</option>
+          <option value="UX Design">UX Design</option>
+          <option value="Front-End Development">Front-End Development</option>
+          <option value="HTML/CSS Development">HTML/CSS Development</option>
+          <option value="JavaScript Development">JavaScript Development</option>
+          <option value="Front-End Frameworks">Front-End Frameworks</option>
+          <option value="Back-End Development">Back-End Development</option>
+          <option value="API Development">API Development</option>
+          <option value="Database Management">Database Management</option>
+          <option value="Server-Side Scripting">Server-Side Scripting</option>
+          <option value="Data Science">Data Science</option>
+          <option value="Data Analysis">Data Analysis</option>
+          <option value="Machine Learning">Machine Learning</option>
+          <option value="Data Engineering">Data Engineering</option>
+          <option value="DevOps">DevOps</option>
+          <option value="Continuous Integration/Continuous Deployment (CI/CD)">Continuous Integration/Continuous Deployment (CI/CD)</option>
+          <option value="Infrastructure as Code">Infrastructure as Code</option>
+          <option value="Monitoring and Logging">Monitoring and Logging</option>
+          <option value="Quality Assurance (QA)">Quality Assurance (QA)</option>
+          <option value="Project Management">Project Management</option>
+          <option value="Cybersecurity">Cybersecurity</option>
+          <option value="Mobile Development">Mobile Development</option>
+          <option value="iOS Development">iOS Development</option>
+          <option value="Android Development">Android Development</option>
+          <option value="Cross-Platform Development">Cross-Platform Development</option>
+          <option value="Technical Support">Technical Support</option>
+          <option value="Documentation">Documentation</option>
+          <option value="Testing">Testing</option>
+          <option value="Unit Testing">Unit Testing</option>
+          <option value="Integration Testing">Integration Testing</option>
+          <option value="End-to-End Testing">End-to-End Testing</option>
+        </select>
+      </div>
+
+      <button id="addTaskButton" class="bg-blue-500 text-white px-4 py-2 rounded">+ Add Task</button>
+
+      {% comment %}Task Containers{% endcomment %}
+
+      <div class="flex space-x-4">
+        <div id="in-progress-tasks" class="w-1/3">
+          <h2 class="text-2xl font-bold">In Progress</h2>
+          <button id="in-progress" class="bg-blue-500 text-white px-4 py-2 rounded">In Progress</button>
+          <div id="in-progress-container"></div>
+        </div>
+
+        <div id="completed-tasks" class="w-1/3">
+          <h2 class="text-2xl font-bold">Completed</h2>
+          <button id="completed" class="bg-green-500 text-white px-4 py-2 rounded">Completed</button>
+          <div id="completed-container"></div>
+        </div>
+
+        <div id="overdue-tasks" class="w-1/3">
+          <h2 class="text-2xl font-bold">Overdue</h2>
+          <button id="overdue" class="bg-red-500 text-white px-4 py-2 rounded">Overdue</button>
+          <div id="overdue-container"></div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Modals -->
+    <!-- Modals -->
 
-  {% comment %}Task details Modal{% endcomment %}
-  <div id="task-modal" title="Task Details" style="display:none;">
-    <div id="task-details">
-      <h3>Task Details</h3>
-      <p>
-        <strong>Title:</strong> <span id="task-title"></span>
-      </p>
-      <p>
-        <strong>Description:</strong> <span id="task-description"></span>
-      </p>
-      <p>
-        <strong>Due Date:</strong> <span id="task-due-date"></span>
-      </p>
-      <p>
-        <strong>Status:</strong> <span id="task-status"></span>
-      </p>
-      <p>
-        <strong>Priority:</strong> <span id="task-priority"></span>
-      </p>
-      <p>
-        <strong>Category:</strong> <span id="task-category"></span>
-      </p>
-      <p>
-        <strong>Assigned To:</strong> <span id="task-assigned-to"></span>
-      </p>
+    {% comment %}Task details Modal{% endcomment %}
+    <div id="task-modal" title="Task Details" style="display:none;">
+      <div id="task-details">
+        <h3>Task Details</h3>
+        <p>
+          <strong>Title:</strong> <span id="task-title"></span>
+        </p>
+        <p>
+          <strong>Description:</strong> <span id="task-description"></span>
+        </p>
+        <p>
+          <strong>Due Date:</strong> <span id="task-due-date"></span>
+        </p>
+        <p>
+          <strong>Status:</strong> <span id="task-status"></span>
+        </p>
+        <p>
+          <strong>Priority:</strong> <span id="task-priority"></span>
+        </p>
+        <p>
+          <strong>Category:</strong> <span id="task-category"></span>
+        </p>
+        <p>
+          <strong>Assigned To:</strong> <span id="task-assigned-to"></span>
+        </p>
+      </div>
     </div>
-  </div>
 
-  {% comment %}Create Task Modal{% endcomment %}
+    {% comment %}Create Task Modal{% endcomment %}
 
-  <div id="create-task-modal" title="Add Task" style="display:none;">
-    <form id="CreateTaskForm" method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="hidden" id="task_action" name="task_action" value="create" />
-    </form>
-  </div>
+    <div id="create-task-modal" title="Add Task" style="display:none;">
+      <form id="CreateTaskForm" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="hidden" id="task_action" name="task_action" value="create" />
+      </form>
+    </div>
 
-  {% comment %}Edit Task Modal{% endcomment %}
-  <div id="edit-task-modal" title="Edit Task" style="display:none;">
-    <form id="EditTaskForm" method="put">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="hidden" id="task_action" name="task_action" value="edit" />
-    </form>
+    {% comment %}Edit Task Modal{% endcomment %}
+    <div id="edit-task-modal" title="Edit Task" style="display:none;">
+      <form id="EditTaskForm" method="put">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="hidden" id="task_action" name="task_action" value="edit" />
+      </form>
+    </div>
   </div>
 {% endblock %}
 

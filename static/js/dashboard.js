@@ -154,20 +154,29 @@ $(document).ready(function () {
                     const formattedDate = moment(task.due_date).format('DD/MM/YYYY');
 
                     const taskHtml = `
-                        <div id="task" class="task p-4 mb-2 bg-white shadow-md rounded" data-task-id="${task.id}" style="cursor: pointer;">
-                            <div class="flex space-x-2">
-                                <button class="priority bg-blue-500 text-white px-4 py-2 rounded">${task.priority}</button>
-                                <button class="due_date bg-blue-500 text-white px-4 py-2 rounded" data-due-dat="${task.due_date}">${task.status.toLowerCase() === 'completed' ? formattedDate : humanizedDate}</button>
-                                <button class="category bg-blue-500 text-white px-4 py-2 rounded">${task.category}</button>
-                            </div>
-                            <h2 class=" text-xl font-semibold">${task.title}</h2>
-                            <h6 class="description">${task.description}</h6>
-                            <div class="title flex justify-end space-x-2">
-                                <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
-                                <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
-                                <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
-                            </div>
-                        </div>
+                                    <div id="task" class="task p-4 rounded w-49 divide-y-4">
+                                    <div class="flex space-x-2">
+                                        <button class="priority bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
+                                        ${task.priority}
+                                        </button>
+                                        <button class="due_date bg-blue-500 text-white px-2 py-1 rounded shadow-sm" data-due-dat="${task.due_date}">
+                                        ${task.status.toLowerCase() === 'completed' ? formattedDate : humanizedDate}
+                                        </button>
+                                        <button class="category bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
+                                        ${task.category}
+                                        </button>
+                                    </div>
+                                    <div class=" bg-white shadow-md p-2">
+                                    <h2 class="text-xl font-semibold text-balance">${task.title}</h2>
+                                    <h6 class="description text-pretty">${task.description}</h6>
+                                    <div class="title flex justify-end space-x-2">
+                                        <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
+                                        <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
+                                        <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
+                                    </div>
+                                    </div>
+                                    
+                                    </div>
                     `;
                     switch (task.status.toLowerCase()) {
                         case 'in progress':
