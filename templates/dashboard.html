@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block content %}
-  {% comment %}script to get the jwt tokens from the backend{% endcomment %}
+  <!-- script to get the jwt tokens from the backend -->
   <script>
     var jwt_access_token = '{{ jwt_access_token }}'
     var jwt_refresh_token = '{{ jwt_refresh_token }}'
@@ -53,40 +53,13 @@
           <option value="">Filter by Category</option>
           <option value="UX Design">UX Design</option>
           <option value="Front-End Development">Front-End Development</option>
-          <option value="HTML/CSS Development">HTML/CSS Development</option>
-          <option value="JavaScript Development">JavaScript Development</option>
-          <option value="Front-End Frameworks">Front-End Frameworks</option>
-          <option value="Back-End Development">Back-End Development</option>
-          <option value="API Development">API Development</option>
-          <option value="Database Management">Database Management</option>
-          <option value="Server-Side Scripting">Server-Side Scripting</option>
-          <option value="Data Science">Data Science</option>
-          <option value="Data Analysis">Data Analysis</option>
-          <option value="Machine Learning">Machine Learning</option>
-          <option value="Data Engineering">Data Engineering</option>
-          <option value="DevOps">DevOps</option>
-          <option value="Continuous Integration/Continuous Deployment (CI/CD)">Continuous Integration/Continuous Deployment (CI/CD)</option>
-          <option value="Infrastructure as Code">Infrastructure as Code</option>
-          <option value="Monitoring and Logging">Monitoring and Logging</option>
-          <option value="Quality Assurance (QA)">Quality Assurance (QA)</option>
-          <option value="Project Management">Project Management</option>
-          <option value="Cybersecurity">Cybersecurity</option>
-          <option value="Mobile Development">Mobile Development</option>
-          <option value="iOS Development">iOS Development</option>
-          <option value="Android Development">Android Development</option>
-          <option value="Cross-Platform Development">Cross-Platform Development</option>
-          <option value="Technical Support">Technical Support</option>
-          <option value="Documentation">Documentation</option>
-          <option value="Testing">Testing</option>
-          <option value="Unit Testing">Unit Testing</option>
-          <option value="Integration Testing">Integration Testing</option>
-          <option value="End-to-End Testing">End-to-End Testing</option>
+          <!-- Add other categories here -->
         </select>
       </div>
 
       <button id="addTaskButton" class="bg-blue-500 text-white px-4 py-2 rounded">+ Add Task</button>
 
-      {% comment %}Task Containers{% endcomment %}
+      <!-- Task Containers -->
 
       <div class="flex space-x-4">
         <div id="in-progress-tasks" class="w-1/3">
@@ -107,55 +80,61 @@
           <div id="overdue-container"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Modals -->
+      <!-- Modals -->
 
-    {% comment %}Task details Modal{% endcomment %}
-    <div id="task-modal" title="Task Details" style="display:none;">
-      <div id="task-details">
-        <h3>Task Details</h3>
-        <p>
-          <strong>Title:</strong> <span id="task-title"></span>
-        </p>
-        <p>
-          <strong>Description:</strong> <span id="task-description"></span>
-        </p>
-        <p>
-          <strong>Due Date:</strong> <span id="task-due-date"></span>
-        </p>
-        <p>
-          <strong>Status:</strong> <span id="task-status"></span>
-        </p>
-        <p>
-          <strong>Priority:</strong> <span id="task-priority"></span>
-        </p>
-        <p>
-          <strong>Category:</strong> <span id="task-category"></span>
-        </p>
-        <p>
-          <strong>Assigned To:</strong> <span id="task-assigned-to"></span>
-        </p>
+      <!-- Task details Modal -->
+      <div id="task-modal" title="Task Details" style="display:none;">
+        <div id="task-details">
+          <h3>Task Details</h3>
+          <p>
+            <strong>Title:</strong> <span id="task-title"></span>
+          </p>
+          <p>
+            <strong>Description:</strong> <span id="task-description"></span>
+          </p>
+          <p>
+            <strong>Due Date:</strong> <span id="task-due-date"></span>
+          </p>
+          <p>
+            <strong>Status:</strong> <span id="task-status"></span>
+          </p>
+          <p>
+            <strong>Priority:</strong> <span id="task-priority"></span>
+          </p>
+          <p>
+            <strong>Category:</strong> <span id="task-category"></span>
+          </p>
+          <p>
+            <strong>Assigned To:</strong> <span id="task-assigned-to"></span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Create Task Modal -->
+      <div id="create-task-modal" title="Add Task" style="display:none;">
+        <form id="CreateTaskForm" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="hidden" id="task_action" name="task_action" value="create" />
+        </form>
+      </div>
+
+      <!-- Edit Task Modal -->
+      <div id="edit-task-modal" title="Edit Task" style="display:none;">
+        <form id="EditTaskForm" method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <input type="hidden" id="task_action" name="task_action" value="edit" />
+        </form>
       </div>
     </div>
 
-    {% comment %}Create Task Modal{% endcomment %}
-
-    <div id="create-task-modal" title="Add Task" style="display:none;">
-      <form id="CreateTaskForm" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="hidden" id="task_action" name="task_action" value="create" />
-      </form>
-    </div>
-
-    {% comment %}Edit Task Modal{% endcomment %}
-    <div id="edit-task-modal" title="Edit Task" style="display:none;">
-      <form id="EditTaskForm" method="put">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="hidden" id="task_action" name="task_action" value="edit" />
-      </form>
+    <!-- Modal Dialog for Delete Confirmation -->
+    <div id="delete-task-dialog" title="Delete Task" style="display:none;">
+      <div>
+        <h6>Are you sure you want to delete this task?</h6>
+      </div>
     </div>
   </div>
 {% endblock %}

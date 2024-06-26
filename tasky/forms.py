@@ -94,7 +94,38 @@ class LoginForm(forms.Form):
          
 
 
-
+CATEGORY_CHOICES = [
+        ('UX Design', 'UX Design'),
+        ('Front-End Development', 'Front-End Development'),
+        ('HTML/CSS Development', 'HTML/CSS Development'),
+        ('JavaScript Development', 'JavaScript Development'),
+        ('Front-End Frameworks', 'Front-End Frameworks'),
+        ('Back-End Development', 'Back-End Development'),
+        ('API Development', 'API Development'),
+        ('Database Management', 'Database Management'),
+        ('Server-Side Scripting', 'Server-Side Scripting'),
+        ('Data Science', 'Data Science'),
+        ('Data Analysis', 'Data Analysis'),
+        ('Machine Learning', 'Machine Learning'),
+        ('Data Engineering', 'Data Engineering'),
+        ('DevOps', 'DevOps'),
+        ('Continuous Integration/Continuous Deployment (CI/CD)', 'Continuous Integration/Continuous Deployment (CI/CD)'),
+        ('Infrastructure as Code', 'Infrastructure as Code'),
+        ('Monitoring and Logging', 'Monitoring and Logging'),
+        ('Quality Assurance (QA)', 'Quality Assurance (QA)'),
+        ('Project Management', 'Project Management'),
+        ('Cybersecurity', 'Cybersecurity'),
+        ('Mobile Development', 'Mobile Development'),
+        ('iOS Development', 'iOS Development'),
+        ('Android Development', 'Android Development'),
+        ('Cross-Platform Development', 'Cross-Platform Development'),
+        ('Technical Support', 'Technical Support'),
+        ('Documentation', 'Documentation'),
+        ('Testing', 'Testing'),
+        ('Unit Testing', 'Unit Testing'),
+        ('Integration Testing', 'Integration Testing'),
+        ('End-to-End Testing', 'End-to-End Testing'),
+    ]
 
 class TaskForm(forms.ModelForm):
     due_date = forms.DateTimeField(widget=forms.TextInput(attrs={'class': 'datetimepicker', 'id': 'id_due_date'}))
@@ -104,7 +135,7 @@ class TaskForm(forms.ModelForm):
         ('Completed', 'Completed'),
         ('Overdue', 'Overdue'),], widget=forms.Select(attrs={'id': 'status'}))
     priority = forms.ChoiceField(choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')], widget=forms.Select(attrs={'id': 'priority'}))
-    category = forms.CharField(widget=forms.TextInput(attrs={'id': 'category'}))
+    category = forms.ChoiceField(choices=CATEGORY_CHOICES,widget=forms.Select(attrs={'id': 'category'}))
     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), widget=forms.Select(attrs={'id': 'assigned_to'}))
 
     class Meta:

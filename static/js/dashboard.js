@@ -1,15 +1,16 @@
+
 $(document).ready(function () {
 
     //getting our csrf token for our crud apis
     function getCookie(name) {
         let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
+        if (document.cookie && document.cookie !== "") {
 
-            const cookies = document.cookie.split(';');
+            const cookies = document.cookie.split(";");
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
                 // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
                 }
@@ -17,7 +18,7 @@ $(document).ready(function () {
         }
         return cookieValue;
     }
-    const csrftoken = getCookie('csrftoken');
+    const csrftoken = getCookie("csrftoken");
 
     // jwt tokens for the crud APIs
     const jwtAccessToken = window.jwt_access_token;
@@ -26,10 +27,10 @@ $(document).ready(function () {
     // Function to check if the JWT token is expired
     function isTokenExpired(token) {
         try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
+            const payload = JSON.parse(atob(token.split(".")[1]));
             return payload.exp < Date.now() / 1000;
         } catch (e) {
-            alert('Failed to parse token: ' + e.message);
+            alert("Failed to parse token: " + e.message);
             return true;
         }
     }
@@ -37,18 +38,18 @@ $(document).ready(function () {
     // Function to refresh the JWT access token using the refresh token
     function refreshToken() {
         return $.ajax({
-            url: 'api/token/refresh/',
-            method: 'POST',
+            url: "api/token/refresh/",
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json'
+                "Content-Type": "application/json"
             },
             data: JSON.stringify({
-                'refresh': jwtRefreshToken
+                "refresh": jwtRefreshToken
             })
         }).then((data) => {
             window.jwt_access_token = data.access;
         }).catch((error) => {
-            alert('Error refreshing token: ' + error.message);
+            alert("Error refreshing token: " + error.message);
             throw error;
         });
     }
@@ -60,7 +61,7 @@ $(document).ready(function () {
                 // Token is refreshed, proceed to load tasks
                 loadTasks();
             }).catch(() => {
-                alert('Session expired. Please log in again.');
+                alert("Session expired. Please log in again.");
             });
         } else {
             // Token is still valid, load tasks
@@ -78,22 +79,22 @@ $(document).ready(function () {
 
     //GET TASKS
 
-    function loadTasks(searchTerm = '') {
-        const priority = $('#filter-priority').val();
-        const category = $('#filter-category').val();
-        const sortDueDate = $('#sort-due-date').val();
+    function loadTasks(searchTerm = "") {
+        const priority = $("#filter-priority").val();
+        const category = $("#filter-category").val();
+        const sortDueDate = $("#sort-due-date").val();
 
         $.ajax({
-            url: 'api/tasks/',
-            method: 'GET',
+            url: "api/tasks/",
+            method: "GET",
             headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json'
+                "Authorization": `Bearer ${jwtAccessToken}`,
+                "Content-Type": "application/json"
             },
             success: function (data) {
-                $('#in-progress-container').empty();
-                $('#completed-container').empty();
-                $('#overdue-container').empty();
+                $("#in-progress-container").empty();
+                $("#completed-container").empty();
+                $("#overdue-container").empty();
 
                 // Filter tasks
                 let filteredTasks = data.filter(task => {
@@ -107,41 +108,41 @@ $(document).ready(function () {
                     const dateA = new Date(a.due_date);
                     const dateB = new Date(b.due_date);
 
-                    // Handle sorting for 'In Progress' and 'Completed' statuses
-                    if ((a.status.toLowerCase() === 'in progress' || a.status.toLowerCase() === 'completed') &&
-                        (b.status.toLowerCase() === 'in progress' || b.status.toLowerCase() === 'completed')) {
-                        if (sortDueDate === 'asc') {
+                    // Handle sorting for "In Progress" and "Completed" statuses
+                    if ((a.status.toLowerCase() === "in progress" || a.status.toLowerCase() === "completed") &&
+                        (b.status.toLowerCase() === "in progress" || b.status.toLowerCase() === "completed")) {
+                        if (sortDueDate === "asc") {
                             return dateA - dateB; // Ascending order
-                        } else if (sortDueDate === 'desc') {
+                        } else if (sortDueDate === "desc") {
                             return dateB - dateA; // Descending order
                         }
                     }
 
-                    // Handle sorting for 'Overdue' status
-                    if (a.status.toLowerCase() === 'overdue' && b.status.toLowerCase() === 'overdue') {
-                        if (sortDueDate === 'asc') {
+                    // Handle sorting for "Overdue" status
+                    if (a.status.toLowerCase() === "overdue" && b.status.toLowerCase() === "overdue") {
+                        if (sortDueDate === "asc") {
                             return dateB - dateA; // Descending order for overdue tasks
-                        } else if (sortDueDate === 'desc') {
+                        } else if (sortDueDate === "desc") {
                             return dateA - dateB; // Ascending order for overdue tasks
                         }
                     }
 
-                    // Handle cases where one task is 'In Progress'/'Completed' and the other is 'Overdue'
-                    if ((a.status.toLowerCase() === 'in progress' || a.status.toLowerCase() === 'completed') &&
-                        b.status.toLowerCase() === 'overdue') {
-                        if (sortDueDate === 'asc') {
-                            return -1; // 'In Progress'/'Completed' before 'Overdue'
-                        } else if (sortDueDate === 'desc') {
-                            return 1; // 'Overdue' before 'In Progress'/'Completed'
+                    // Handle cases where one task is "In Progress"/"Completed" and the other is "Overdue"
+                    if ((a.status.toLowerCase() === "in progress" || a.status.toLowerCase() === "completed") &&
+                        b.status.toLowerCase() === "overdue") {
+                        if (sortDueDate === "asc") {
+                            return -1; // "In Progress"/"Completed" before "Overdue"
+                        } else if (sortDueDate === "desc") {
+                            return 1; // "Overdue" before "In Progress"/"Completed"
                         }
                     }
 
-                    if (a.status.toLowerCase() === 'overdue' &&
-                        (b.status.toLowerCase() === 'in progress' || b.status.toLowerCase() === 'completed')) {
-                        if (sortDueDate === 'asc') {
-                            return 1; // 'Overdue' after 'In Progress'/'Completed'
-                        } else if (sortDueDate === 'desc') {
-                            return -1; // 'In Progress'/'Completed' after 'Overdue'
+                    if (a.status.toLowerCase() === "overdue" &&
+                        (b.status.toLowerCase() === "in progress" || b.status.toLowerCase() === "completed")) {
+                        if (sortDueDate === "asc") {
+                            return 1; // "Overdue" after "In Progress"/"Completed"
+                        } else if (sortDueDate === "desc") {
+                            return -1; // "In Progress"/"Completed" after "Overdue"
                         }
                     }
 
@@ -151,42 +152,42 @@ $(document).ready(function () {
                 // Render tasks
                 filteredTasks.forEach(task => {
                     const humanizedDate = moment(task.due_date).fromNow();
-                    const formattedDate = moment(task.due_date).format('DD/MM/YYYY');
+                    const formattedDate = moment(task.due_date).format("DD/MM/YYYY");
 
                     const taskHtml = `
-                                    <div id="task" class="task p-4 rounded w-49 divide-y-4">
-                                    <div class="flex space-x-2">
-                                        <button class="priority bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
-                                        ${task.priority}
-                                        </button>
-                                        <button class="due_date bg-blue-500 text-white px-2 py-1 rounded shadow-sm" data-due-dat="${task.due_date}">
-                                        ${task.status.toLowerCase() === 'completed' ? formattedDate : humanizedDate}
-                                        </button>
-                                        <button class="category bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
-                                        ${task.category}
-                                        </button>
-                                    </div>
-                                    <div class=" bg-white shadow-md p-2">
-                                    <h2 class="text-xl font-semibold text-balance">${task.title}</h2>
-                                    <h6 class="description text-pretty">${task.description}</h6>
-                                    <div class="title flex justify-end space-x-2">
-                                        <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
-                                        <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
-                                        <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
-                                    </div>
-                                    </div>
-                                    
-                                    </div>
-                    `;
+    <div id="task" class="task p-4 rounded w-49 divide-y-4" data-task-id="${task.id}">
+        <div class="flex space-x-2">
+            <button class="priority bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
+                ${task.priority}
+            </button>
+            <button class="due_date bg-blue-500 text-white px-2 py-1 rounded shadow-sm" data-due-date="${task.due_date}">
+                ${task.status.toLowerCase() === "completed" ? formattedDate : humanizedDate}
+            </button>
+            <button class="category bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
+                ${task.category}
+            </button>
+        </div>
+        <div class="bg-white shadow-md p-2">
+            <h2 class="text-xl font-semibold text-balance">${task.title}</h2>
+            <h6 class="description text-pretty">${task.description}</h6>
+            <div class="title flex justify-end space-x-2">
+                <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
+                <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
+                <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
+            </div>
+        </div>
+    </div>
+`;
+
                     switch (task.status.toLowerCase()) {
-                        case 'in progress':
-                            $('#in-progress-container').append(taskHtml);
+                        case "in progress":
+                            $("#in-progress-container").append(taskHtml);
                             break;
-                        case 'completed':
-                            $('#completed-container').append(taskHtml);
+                        case "completed":
+                            $("#completed-container").append(taskHtml);
                             break;
-                        case 'overdue':
-                            $('#overdue-container').append(taskHtml);
+                        case "overdue":
+                            $("#overdue-container").append(taskHtml);
                             break;
                         default:
                             break;
@@ -195,14 +196,14 @@ $(document).ready(function () {
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 const errorMessage = xhr.responseText;
-                alert('Error deleting task: ' + errorMessage);
+                alert("Error deleting task: " + errorMessage);
 
             }
         });
     }
 
     // Initial load of tasks
-    loadTasks('');
+    loadTasks("");
 
 
     // this will reload the dom without page refresh every five minues
@@ -212,7 +213,7 @@ $(document).ready(function () {
 
 
 
-    //GETTING A SINGLE TASK
+    //GETTING A SINGLE TASK / GET TASK BY ID
 
     // Initialize modal dialog
     $("#task-modal").dialog({
@@ -227,8 +228,8 @@ $(document).ready(function () {
     });
 
     // Handle get task button click
-    $('.container').on('click', '.get-task-button', function () {
-        const taskId = $(this).data('task-id');
+    $(".container").on("click", ".get-task-button", function () {
+        const taskId = $(this).data("task-id");
         getTaskById(taskId);
     });
 
@@ -237,27 +238,27 @@ $(document).ready(function () {
         const url = `/api/tasks/${taskId}/`;
         $.ajax({
             url: url,
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json'
+                "Authorization": `Bearer ${jwtAccessToken}`,
+                "Content-Type": "application/json"
             },
             success: function (task) {
                 // Populate task details
-                $('#task-title').text(task.title);
-                $('#task-description').text(task.description);
-                $('#task-due-date').text(task.due_date);
-                $('#task-status').text(task.status);
-                $('#task-priority').text(task.priority);
-                $('#task-category').text(task.category);
-                $('#task-assigned-to').text(task.assigned_to);
+                $("#task-title").text(task.title);
+                $("#task-description").text(task.description);
+                $("#task-due-date").text(task.due_date);
+                $("#task-status").text(task.status);
+                $("#task-priority").text(task.priority);
+                $("#task-category").text(task.category);
+                $("#task-assigned-to").text(task.assigned_to);
 
                 // Open modal to display task details
                 $("#task-modal").dialog("open");
             },
             error: function (xhr, status, error) {
                 const errorMessage = xhr.responseText;
-                alert('Error deleting task: ' + errorMessage);
+                alert("Error deleting task: " + errorMessage);
             }
         });
     }
@@ -297,50 +298,55 @@ $(document).ready(function () {
 
         // Validation check
         if (
-            !$('#title').val().trim() ||
-            !$('#description').val().trim() ||
-            !$('.datetimepicker').val().trim() ||
-            !$('#status').val().trim() ||
-            !$('#priority').val().trim() ||
-            !$('#category').val().trim() ||
-            !$('#assigned_to').val().trim()
+            !$("#title").val().trim() ||
+            !$("#description").val().trim() ||
+            !$(".datetimepicker").val().trim() ||
+            !$("#status").val().trim() ||
+            !$("#priority").val().trim() ||
+            !$("#category").val().trim() ||
+            !$("#assigned_to").val().trim()
         ) {
             alert("All fields are required");
             return; // Stop further execution if validation fails
         }
-        const rawDueDate = $('.datetimepicker').val();
+        const rawDueDate = $(".datetimepicker").val();
         const formattedDueDate = new Date(rawDueDate).toISOString();
 
         const formData = {
-            title: $('#title').val(),
-            description: $('#description').val(),
+            title: $("#title").val(),
+            description: $("#description").val(),
             due_date: formattedDueDate,
-            status: $('#status').val(),
-            priority: $('#priority').val(),
-            category: $('#category').val(),
-            assigned_to: $('#assigned_to').val(),
+            status: $("#status").val(),
+            priority: $("#priority").val(),
+            category: $("#category").val(),
+            assigned_to: $("#assigned_to").val(),
         };
+        const data = JSON.stringify(formData);
 
 
 
         // AJAX POST request for creating a new task
         $.ajax({
-            url: 'api/tasks/',
-            method: 'POST',
+            url: "api/tasks/",
+            method: "POST",
             headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
+                "Authorization": `Bearer ${jwtAccessToken}`,
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
             },
-            data: formData,
+            data: data,
             success: function (response) {
                 $("#create-task-modal").dialog("close");
+                console.log(response);
                 alert("Task created successfully");
                 loadTasks();
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText;
-                alert('Error submitting task: ' + errorMessage);
+                const errorMessage = xhr.responseText + status + error;
+                console.log(xhr);
+                console.log(error);
+                console.log(status);
+                alert("Error submitting task: " + errorMessage);
             }
         });
     });
@@ -349,8 +355,8 @@ $(document).ready(function () {
 
 
     // Handle edit button click
-    $('.container').on('click', '.edit-button', function () {
-        const taskId = $(this).data('task-id');
+    $(".container").on("click", ".edit-button", function () {
+        const taskId = $(this).data("task-id");
         editTask(taskId);
     });
 
@@ -371,104 +377,100 @@ $(document).ready(function () {
 
     // Function to fetch and populate task details for editing
     function editTask(taskId) {
-
         const url = `/api/tasks/${taskId}/`;
+
+        // Fetch task details
         $.ajax({
-            url: `/api/tasks/${taskId}/`,
-            method: 'GET',
+            url: url,
+            method: "GET",
             headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtAccessToken}`,
+                "Content-Type": "application/json",
             },
             success: function (task) {
                 // Populate form fields with task details
-                $('#EditTaskForm #title').val(task.title);
-                $('#EditTaskForm #description').val(task.description);
-                $('#EditTaskForm .datetimepicker').val(moment(task.due_date).format('YYYY/MM/DD HH:mm'));
-                $('#EditTaskForm #status').val(task.status);
-                $('#EditTaskForm #priority').val(task.priority);
-                $('#EditTaskForm #category').val(task.category);
-                $('#EditTaskForm #assigned_to').val(task.assigned_to);
+                $("#EditTaskForm #title").val(task.title);
+                $("#EditTaskForm #description").val(task.description);
+                $("#EditTaskForm .datetimepicker").val(moment(task.due_date).format("YYYY/MM/DD HH:mm"));
+                $("#EditTaskForm #status").val(task.status);
+                $("#EditTaskForm #priority").val(task.priority);
+                $("#EditTaskForm #category").val(task.category);
+                $("#EditTaskForm #assigned_to").val(task.assigned_to);
 
                 // Set hidden field value to "edit" and task ID
                 $("#EditTaskForm #task_action").val(taskId);
 
                 // Open modal for editing
                 $("#edit-task-modal").dialog("open");
+
+                // Handle form submission for editing a task
+                $("#EditTaskForm").off('submit').on('submit', function (event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    // Validation check
+                    if (
+                        !$("#EditTaskForm #title").val().trim() ||
+                        !$("#EditTaskForm #description").val().trim() ||
+                        !$("#EditTaskForm .datetimepicker").val().trim() ||
+                        !$("#EditTaskForm #status").val().trim() ||
+                        !$("#EditTaskForm #priority").val().trim() ||
+                        !$("#EditTaskForm #category").val().trim() ||
+                        !$("#EditTaskForm #assigned_to").val().trim()
+                    ) {
+                        alert("All fields are required");
+                        return; // Stop further execution if validation fails
+                    }
+
+                    const taskId = $("#EditTaskForm #task_action").val();
+                    const rawDueDate = $("#EditTaskForm .datetimepicker").val();
+
+                    // Validate and parse the date
+                    const momentDate = moment(rawDueDate, "YYYY/MM/DD HH:mm", true);
+                    if (!momentDate.isValid()) {
+                        alert("Invalid date format. Please enter a valid date.");
+                        return;
+                    }
+
+                    const formattedDueDate = new Date(rawDueDate).toISOString();
+
+                    const formData = {
+                        title: $("#EditTaskForm #title").val(),
+                        description: $("#EditTaskForm #description").val(),
+                        due_date: formattedDueDate,
+                        status: $("#EditTaskForm #status").val(),
+                        priority: $("#EditTaskForm #priority").val(),
+                        category: $("#EditTaskForm #category").val(),
+                        assigned_to: $("#EditTaskForm #assigned_to").val(),
+                    };
+
+                    // AJAX PUT request for updating a task
+                    $.ajax({
+                        url: `api/tasks/${taskId}/`,
+                        method: "PUT",
+                        headers: {
+                            "Authorization": `Bearer ${jwtAccessToken}`,
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": csrftoken
+                        },
+                        data: JSON.stringify(formData), // Stringify the form data
+                        success: function (response) {
+                            $("#edit-task-modal").dialog("close");
+                            alert("Task updated successfully");
+                            loadTasks(); // Reload tasks after update
+                        },
+                        error: function (xhr, status, error) {
+                            const errorMessage = xhr.responseText;
+                            alert("Error updating task: " + errorMessage);
+                        }
+                    });
+                });
             },
             error: function (xhr, status, error) {
                 const errorMessage = xhr.responseText;
-                alert('Error deleting task: ' + errorMessage);
+                alert("Error retrieving task: " + errorMessage);
             }
         });
     }
-
-    // Handle form submission for editing a task
-    $("#EditTaskForm").submit(function (event) {
-        event.preventDefault(); // Prevent default form submission
-
-        // Validation check
-        if (
-            !$('#EditTaskForm #title').val().trim() ||
-            !$('#EditTaskForm #description').val().trim() ||
-            !$('#EditTaskForm .datetimepicker').val().trim() ||
-            !$('#EditTaskForm #status').val().trim() ||
-            !$('#EditTaskForm #priority').val().trim() ||
-            !$('#EditTaskForm #category').val().trim() ||
-            !$('#EditTaskForm #assigned_to').val().trim()
-        ) {
-            alert("All fields are required");
-            return; // Stop further execution if validation fails
-        }
-
-        const taskId = $("#EditTaskForm #task_action").val();
-        const rawDueDate = $('#EditTaskForm .datetimepicker').val();
-
-        // Validate and parse the date
-        const momentDate = moment(rawDueDate, 'YYYY/MM/DD HH:mm', true);
-        if (!momentDate.isValid()) {
-            alert('Invalid date format. Please enter a valid date.');
-            return;
-        }
-
-        const formattedDueDate = new Date(rawDueDate).toISOString();
-
-        const formData = {
-            title: $('#EditTaskForm #title').val(),
-            description: $('#EditTaskForm #description').val(),
-            due_date: formattedDueDate,
-            status: $('#EditTaskForm #status').val(),
-            priority: $('#EditTaskForm #priority').val(),
-            category: $('#EditTaskForm #category').val(),
-            assigned_to: $('#EditTaskForm #assigned_to').val(),
-        };
-
-
-
-        // AJAX PUT request for updating a task
-        $.ajax({
-            url: `api/tasks/${taskId}/`,
-
-            method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            data: formData,
-            success: function (response) {
-                $("#edit-task-modal").dialog("close");
-                alert("Task updated successfully");
-                loadTasks(); // Assume there's a function to reload tasks
-            },
-            error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText;
-                alert('Error updating task: ' + errorMessage);
-            }
-        });
-    });
-
-
 
 
 
@@ -477,49 +479,36 @@ $(document).ready(function () {
     // DELETING A TASK
 
 
-    // Handle delete button click
-    $('.container').on('click', '.delete-button', function () {
-        const taskId = $(this).data('task-id');
-        ConfirmDialog('Are you sure you want to delete this task?', function () {
-            deleteTask(taskId);
+    // Attach click event listener to delete buttons
+    $(".container").on("click", ".delete-button", function () {
+        const taskId = $(this).data("task-id");
+
+        // Open confirmation dialog
+        $("#delete-task-dialog").dialog({
+            modal: true,
+            resizable: false,
+            buttons: {
+                Yes: function () {
+                    $(this).dialog("close"); // Close the dialog on Yes
+                    deleteTask(taskId); // Call delete function
+                },
+                No: function () {
+                    $(this).dialog("close"); // Close the dialog on No
+                }
+            }
         });
     });
 
-    function ConfirmDialog(message, onConfirm) {
-        $('<div></div>').appendTo('body')
-            .html('<div><h6>' + message + '</h6></div>')
-            .dialog({
-                modal: true,
-                title: 'Delete Task',
-                zIndex: 10000,
-                autoOpen: true,
-                width: 'auto',
-                resizable: false,
-                buttons: {
-                    Yes: function () {
-                        onConfirm();
-                        $(this).dialog("close");
-                    },
-                    No: function () {
-                        $(this).dialog("close");
-                    }
-                },
-                close: function (event, ui) {
-                    $(this).remove();
-                }
-            });
-    }
-
+    // Function to handle task deletion
     function deleteTask(taskId) {
-
         // AJAX DELETE request
         $.ajax({
             url: `api/tasks/${taskId}/`,
-            method: 'DELETE',
+            method: "DELETE",
             headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
+                Authorization: `Bearer ${jwtAccessToken}`,
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrftoken
             },
             success: function (response) {
                 alert("Task deleted successfully");
@@ -527,66 +516,43 @@ $(document).ready(function () {
             },
             error: function (xhr, status, error) {
                 const errorMessage = xhr.responseText;
-                alert('Error deleting task: ' + errorMessage);
+                alert("Error deleting task: " + errorMessage);
             }
         });
     }
 
-
-
-
     // Make tasks draggable
-    $('#in-progress-container, #completed-container, #overdue-container').sortable({
-        connectWith: '#in-progress-container, #completed-container, #overdue-container',
+    $("#in-progress-container, #completed-container, #overdue-container").sortable({
+        connectWith: "#in-progress-container, #completed-container, #overdue-container",
         placeholder: "ui-state-highlight",
         opacity: 0.6,
         revert: true,
         stop: function (event, ui) {
-            const taskId = ui.item.data('task-id');
-            let newStatus = ui.item.parent().attr('id').replace('-container', '');
+            const taskId = ui.item.data("task-id");
+            let newStatus = ui.item.parent().attr("id").replace("-container", "");
 
             // Capitalize first letter for consistency
             newStatus = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
 
-            if (newStatus === 'In-progress') {
-                newStatus = 'In Progress'; // Correct assignment if the status is 'In-progress'
+            if (newStatus === "In-progress") {
+                newStatus = "In Progress"; // Correct assignment if the status is "In-progress"
             }
 
             updateTaskStatus(taskId, newStatus);
         }
-
-
     }).disableSelection();
-
-
-
-
 
     function updateTaskStatus(taskId, newStatus) {
         const url = `/api/tasks/${taskId}/`;
 
         $.ajax({
             url: url,
-            method: 'GET',
+            method: "GET",
             headers: {
-                'Authorization': `Bearer ${jwtAccessToken}`,
-                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${jwtAccessToken}`,
+                "Content-Type": "application/json",
             },
             success: function (task) {
-
-                // Populate form fields with task details
-                $('#EditTaskForm #title').val(task.title);
-                $('#EditTaskForm #description').val(task.description);
-                $('#EditTaskForm .datetimepicker').val(moment(task.due_date).format('YYYY/MM/DD HH:mm'));
-                $('#EditTaskForm #status').val(newStatus);
-                $('#EditTaskForm #priority').val(task.priority);
-                $('#EditTaskForm #category').val(task.category);
-                $('#EditTaskForm #assigned_to').val(task.assigned_to);
-
-                // Set hidden field value to "edit" and task ID
-                $("#EditTaskForm #task_action").val(taskId);
-
-
                 // AJAX PUT request to update task
                 const formData = {
                     title: task.title,
@@ -598,36 +564,33 @@ $(document).ready(function () {
                     assigned_to: task.assigned_to,
                 };
 
-                const csrftoken = $('input[name="csrfmiddlewaretoken"]').val();
+                const data = JSON.stringify(formData);
 
                 $.ajax({
                     url: url,
-                    method: 'PUT',
+                    method: "PUT",
                     headers: {
-                        'Authorization': `Bearer ${jwtAccessToken}`,
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrftoken
+                        "Authorization": `Bearer ${jwtAccessToken}`,
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrftoken,
                     },
-                    data: formData,
+                    data: data,
                     success: function (response) {
-                        alert('Task status updated successfully. Please endeavour to edit the task due date immediately');
+                        alert("Task status updated successfully. Please endeavor to edit the task due date immediately");
                         loadTasks(); // Reload tasks after update
                     },
                     error: function (xhr, status, error) {
                         const errorMessage = xhr.responseText;
-                        alert('Error deleting task: ' + errorMessage);
+                        alert("Error updating task: " + errorMessage);
                     }
                 });
-
             },
             error: function (xhr, status, error) {
                 const errorMessage = xhr.responseText;
-                alert('Error deleting task: ' + errorMessage);
+                alert("Error retrieving task: " + errorMessage);
             }
         });
     }
-
-
 
 
     // Initialize modal dialog for highlighted elements
@@ -646,41 +609,42 @@ $(document).ready(function () {
     let highlightedElement;
 
     // Handle task click to highlight
-    $('.container').on('click', '#task', function () {
+    $(".container").on("click", "#task", function () {
         if (highlightedElement) {
-            highlightedElement.removeAttr('style'); // Remove previous styles
+            highlightedElement.removeAttr("style"); // Remove previous styles
         }
 
         // Add inline styles for highlighting
-        $(this).attr('style', 'background-color: lightblue; border: 1px solid blue; font-weight: bold;');
+        $(this).attr("style", "background-color: lightblue; border: 1px solid blue; font-weight: bold;");
 
         highlightedElement = $(this);
     });
 
     // Handle get highlighted task button click
-    $('#get-highlighted-task-button').on('click', function () {
+    $("#get-highlighted-task-button").on("click", function () {
         if (highlightedElement) {
-            const taskId = highlightedElement.data('task-id');
+            const taskId = highlightedElement.data("task-id");
+            console.log("task highlited is", taskId);
             getTaskById(taskId);
         } else {
-            alert('No task is highlighted.');
+            alert("No task is highlighted.");
         }
     });
 
 
     // Initialize datetimepicker for due_date field
-    $('.datetimepicker').datetimepicker({
-        dateFormat: 'yy-mm-dd',
-        timeFormat: 'HH:mm',
+    $(".datetimepicker").datetimepicker({
+        dateFormat: "yy-mm-dd",
+        timeFormat: "HH:mm",
         changeMonth: true,
         changeYear: true,
-        controlType: 'select',
+        controlType: "select",
         oneLine: true
     });
 
 
     // Implement search functionality
-    $('#search').on('input', function () {
+    $("#search").on("input", function () {
         loadTasks($(this).val());
     });
 
@@ -688,56 +652,36 @@ $(document).ready(function () {
     // Function to handle toggling sort options visibility
 
     // Hide filter and sort-container by default
-    $('#sort-container').hide();
-    $('#filter-container').hide();
+    $("#sort-container").hide();
+    $("#filter-container").hide();
 
 
     function toggleSort() {
-        $('#sort-container').toggle();
+        $("#sort-container").toggle();
     }
 
     // Function to handle toggling filter options visibility
     function toggleFilter() {
-        $('#filter-container').toggle();
+        $("#filter-container").toggle();
     }
 
     // Event listener for the sort button
-    $('#toggle-sort-button').click(function () {
+    $("#toggle-sort-button").click(function () {
         toggleSort();
     });
 
     // Event listener for the filter button
-    $('#toggle-filter-button').click(function () {
+    $("#toggle-filter-button").click(function () {
         toggleFilter();
     });
 
     // Event listener for changes in filters or sort options
-    $('#filter-priority, #filter-category, #sort-due-date').change(function () {
+    $("#filter-priority, #filter-category, #sort-due-date").change(function () {
         loadTasks(); // Reload tasks when any filter or sort option changes
     });
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 });
+
