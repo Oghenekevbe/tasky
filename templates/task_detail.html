@@ -7,14 +7,33 @@
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <div class="px-2 mx-2 my-2 bg-blue-500 py-2 rounded">
-      <h6>{{ task.title }}</h6>
-      <h6>{{ task.priority }}</h6>
-      <h6>{{ task.assigned_to }}</h6>
-      <h6>{{ task.status }}</h6>
-      <h6>{{ task.due_date|naturaltime }}</h6>
-      <h6>{{ task.category }}</h6>
+  <div class="container mx-auto my-4 p-4 max-w-lg bg-white text-gray-500 shadow-xl rounded-lg">
+    <div class="container">
+      <div class="py-2 px-4 bg-blue-500 rounded-t-lg text-white">
+        <h2 class="text-xl font-bold">{{ task.title }}</h2>
+      </div>
+      <div class="p-4 space-y-2">
+        <div class="flex justify-between">
+          <span class="font-semibold">Priority:</span>
+          <span>{{ task.priority }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold">Assigned To:</span>
+          <span>{{ task.assigned_to }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold">Status:</span>
+          <span>{{ task.status }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold">Due Date:</span>
+          <span>{{ task.due_date|naturaltime }}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="font-semibold">Category:</span>
+          <span>{{ task.category }}</span>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

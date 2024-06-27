@@ -30,7 +30,7 @@ $(document).ready(function () {
             const payload = JSON.parse(atob(token.split(".")[1]));
             return payload.exp < Date.now() / 1000;
         } catch (e) {
-            alert("Failed to parse token: " + e.message);
+            alert("Failed to parse token: ");
             return true;
         }
     }
@@ -49,7 +49,7 @@ $(document).ready(function () {
         }).then((data) => {
             window.jwt_access_token = data.access;
         }).catch((error) => {
-            alert("Error refreshing token: " + error.message);
+            alert("Error refreshing token ");
             throw error;
         });
     }
@@ -83,6 +83,11 @@ $(document).ready(function () {
         const priority = $("#filter-priority").val();
         const category = $("#filter-category").val();
         const sortDueDate = $("#sort-due-date").val();
+
+        // Reset counters
+        let inProgressCount = 0;
+        let completedCount = 0;
+        let overdueCount = 0;
 
         $.ajax({
             url: "api/tasks/",
@@ -149,55 +154,108 @@ $(document).ready(function () {
                     return 0; // Default case
                 });
 
-                // Render tasks
+                // Count tasks and render
                 filteredTasks.forEach(task => {
                     const humanizedDate = moment(task.due_date).fromNow();
                     const formattedDate = moment(task.due_date).format("DD/MM/YYYY");
 
-                    const taskHtml = `
-    <div id="task" class="task p-4 rounded w-49 divide-y-4" data-task-id="${task.id}">
-        <div class="flex space-x-2">
-            <button class="priority bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
-                ${task.priority}
-            </button>
-            <button class="due_date bg-blue-500 text-white px-2 py-1 rounded shadow-sm" data-due-date="${task.due_date}">
-                ${task.status.toLowerCase() === "completed" ? formattedDate : humanizedDate}
-            </button>
-            <button class="category bg-blue-500 text-white px-2 py-1 rounded shadow-sm">
-                ${task.category}
-            </button>
-        </div>
-        <div class="bg-white shadow-md p-2">
-            <h2 class="text-xl font-semibold text-balance">${task.title}</h2>
-            <h6 class="description text-pretty">${task.description}</h6>
-            <div class="title flex justify-end space-x-2">
-                <button class="get-task-button" data-task-id="${task.id}">Get Task</button>
-                <button class="bg-green-500 text-white px-4 py-2 rounded edit-button" data-task-id="${task.id}">Edit</button>
-                <button class="bg-red-500 delete-button text-white px-4 py-2 rounded" data-task-id="${task.id}">Delete</button>
-            </div>
-        </div>
-    </div>
-`;
+                    //get priority for styling
+                    const getPriorityStyles = (priority) => {
+                        switch (priority.toLowerCase()) {
+                            case 'high':
+                                return {
+                                    priorityClass: 'bg-red-200 text-red-800',
+                                    buttonClass: 'text-red-600',
+                                };
+                            case 'medium':
+                                return {
+                                    priorityClass: 'bg-orange-200 text-orange-800',
+                                    buttonClass: 'text-orange-600',
+                                };
+                            case 'low':
+                                return {
+                                    priorityClass: 'bg-gray-200 text-green-800',
+                                    buttonClass: 'text-green-600',
+                                };
+                            default:
+                                return {
+                                    priorityClass: 'bg-gray-200 text-gray-800',
+                                    buttonClass: 'text-gray-600',
+                                };
+                        }
+                    };
 
+                    const priorityStyles = getPriorityStyles(task.priority);
+
+                    const taskHtml = `
+                        <div id="task" class="container task  rounded-md space-y-4" data-task-id="${task.id}">
+                            <div class="flex space-x-2">
+                                <button class="priority px-2 py-1 font-semibold  rounded-sm shadow-md text-xs ${priorityStyles.priorityClass}">
+                                    ${task.priority}
+                                </button>
+                                <button class="due_date bg-white font-semibold text-violet-500 px-2 py-1 rounded-md shadow-md text-xs" data-due-date="${task.due_date}">
+                                    ${task.status.toLowerCase() === "completed" ? formattedDate : humanizedDate}
+                                </button>
+                                <button class="category bg-gray-200 font-semibold text-blue-500 px-2 py-0.5 rounded-md shadow-md text-xs">
+                                    ${task.category}
+                                </button>
+                            </div>
+                            <div class="container rounded-lg bg-gray-100 p-2 h-28">
+                                <div class="flex flex-row-reverse">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500" viewBox="0 0 16 16">
+                                        <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
+                                    </svg>
+                                </div>
+                                <h6 class="font-semibold text-balance text-gray-900">${task.title}</h6>
+                                <h6 class="description text-sm text-gray-500 truncate max-h-72">${task.description}</h6>
+                                <ul class="title flex justify-end">
+                                    <li class="get-task-button text-xs text-blue-400 cursor-pointer" data-task-id="${task.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye mt-1" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0"/>
+                                        </svg>
+                                    </li>
+                                    <li class="text-xs text-blue-400 px-3 py-1 edit-button cursor-pointer" data-task-id="${task.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
+                                            <path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325"/>
+                                        </svg>
+                                    </li>
+                                    <li class="text-blue-400 text-xs px-3 py-1 delete-button -ml-4  cursor-pointer" data-task-id="${task.id}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                                            <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                                        </svg>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    `;
+
+                    // Increment counters based on task status
                     switch (task.status.toLowerCase()) {
                         case "in progress":
                             $("#in-progress-container").append(taskHtml);
+                            inProgressCount++;
                             break;
                         case "completed":
                             $("#completed-container").append(taskHtml);
+                            completedCount++;
                             break;
                         case "overdue":
                             $("#overdue-container").append(taskHtml);
+                            overdueCount++;
                             break;
                         default:
                             break;
                     }
                 });
+
+                // Update counters in UI
+                $("#in-progress-count").text(` (${inProgressCount})`);
+                $("#completed-count").text(` (${completedCount})`);
+                $("#overdue-count").text(` (${overdueCount})`);
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                const errorMessage = xhr.responseText;
-                alert("Error deleting task: " + errorMessage);
-
+                alert("Error loading tasks");
             }
         });
     }
@@ -236,6 +294,7 @@ $(document).ready(function () {
     // Function to fetch task details by ID
     function getTaskById(taskId) {
         const url = `/api/tasks/${taskId}/`;
+
         $.ajax({
             url: url,
             method: "GET",
@@ -257,8 +316,8 @@ $(document).ready(function () {
                 $("#task-modal").dialog("open");
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText;
-                alert("Error deleting task: " + errorMessage);
+
+                alert("Error deleting task");
             }
         });
     }
@@ -337,16 +396,11 @@ $(document).ready(function () {
             data: data,
             success: function (response) {
                 $("#create-task-modal").dialog("close");
-                console.log(response);
                 alert("Task created successfully");
                 loadTasks();
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText + status + error;
-                console.log(xhr);
-                console.log(error);
-                console.log(status);
-                alert("Error submitting task: " + errorMessage);
+                alert("Error submitting task");
             }
         });
     });
@@ -459,15 +513,15 @@ $(document).ready(function () {
                             loadTasks(); // Reload tasks after update
                         },
                         error: function (xhr, status, error) {
-                            const errorMessage = xhr.responseText;
-                            alert("Error updating task: " + errorMessage);
+
+                            alert("Error updating task");
                         }
                     });
                 });
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText;
-                alert("Error retrieving task: " + errorMessage);
+
+                alert("Error retrieving task");
             }
         });
     }
@@ -515,8 +569,8 @@ $(document).ready(function () {
                 loadTasks(); // Refresh task list after deletion
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText;
-                alert("Error deleting task: " + errorMessage);
+
+                alert("Error deleting task");
             }
         });
     }
@@ -580,14 +634,14 @@ $(document).ready(function () {
                         loadTasks(); // Reload tasks after update
                     },
                     error: function (xhr, status, error) {
-                        const errorMessage = xhr.responseText;
-                        alert("Error updating task: " + errorMessage);
+
+                        alert("Error updating task");
                     }
                 });
             },
             error: function (xhr, status, error) {
-                const errorMessage = xhr.responseText;
-                alert("Error retrieving task: " + errorMessage);
+
+                alert("Error retrieving task");
             }
         });
     }
@@ -605,27 +659,35 @@ $(document).ready(function () {
         }
     });
 
-    // Variable to store the currently highlighted element
-    let highlightedElement;
+
 
     // Handle task click to highlight
+    let highlightedElement = null;
+
     $(".container").on("click", "#task", function () {
-        if (highlightedElement) {
-            highlightedElement.removeAttr("style"); // Remove previous styles
+        if ($(this).is(highlightedElement)) {
+            // If already highlighted, remove styles
+            $(this).find("*").removeAttr("style");
+            highlightedElement = null;
+        } else {
+            // Remove styles from previously highlighted element, if any
+            if (highlightedElement) {
+                highlightedElement.find("*").removeAttr("style");
+            }
+
+            // Add inline styles for highlighting
+            $(this).find("*").attr("style", "color: #2563eb; border: 0.5px lightblue;");
+            highlightedElement = $(this);
         }
-
-        // Add inline styles for highlighting
-        $(this).attr("style", "background-color: lightblue; border: 1px solid blue; font-weight: bold;");
-
-        highlightedElement = $(this);
     });
+
 
     // Handle get highlighted task button click
     $("#get-highlighted-task-button").on("click", function () {
         if (highlightedElement) {
             const taskId = highlightedElement.data("task-id");
-            console.log("task highlited is", taskId);
             getTaskById(taskId);
+
         } else {
             alert("No task is highlighted.");
         }
@@ -678,6 +740,16 @@ $(document).ready(function () {
     // Event listener for changes in filters or sort options
     $("#filter-priority, #filter-category, #sort-due-date").change(function () {
         loadTasks(); // Reload tasks when any filter or sort option changes
+    });
+
+
+    //event listener for hiding profile details
+    // Hide the change password and logout initially
+    $('#change-password, #logout').hide();
+
+    // Add click event handler to profile-click
+    $('#profile-click').click(function () {
+        $('#change-password, #logout').toggle();
     });
 
 

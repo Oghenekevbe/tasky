@@ -7,22 +7,42 @@
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    {% for task in tasks %}
-      <a href="{% url 'task_detail' task.pk %}">
-        <div class="px-2 mx-2 my-2 bg-blue-500 py-2 rounded">
-          <h6>{{ task.title }}</h6>
-          <h6>{{ task.priority }}</h6>
-          <h6>{{ task.assigned_to }}</h6>
-          <h6>{{ task.status }}</h6>
-          <h6>{{ task.due_date|naturaltime }}</h6>
-          <h6>{{ task.category }}</h6>
-        </div>
-      </a>
-    {% endfor %}
+  <div class="container mx-auto p-4">
+    <div class="overflow-x-auto">
+      <table id="tasks-table" class="min-w-full bg-white border border-gray-200">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="px-4 py-2 text-left text-gray-600">Title</th>
+            <th class="px-4 py-2 text-left text-gray-600">Priority</th>
+            <th class="px-4 py-2 text-left text-gray-600">Assigned To</th>
+            <th class="px-4 py-2 text-left text-gray-600">Status</th>
+            <th class="px-4 py-2 text-left text-gray-600">Due Date</th>
+            <th class="px-4 py-2 text-left text-gray-600">Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for task in tasks %}
+            <tr class="{% cycle 'bg-white' 'bg-gray-50' %}">
+              <td class="border px-4 py-2" data-label="Title">
+                <a href="{% url 'task_detail' task.pk %}" class="text-blue-500 hover:underline">{{ task.title }}</a>
+              </td>
+              <td class="border px-4 py-2" data-label="Priority">{{ task.priority }}</td>
+              <td class="border px-4 py-2" data-label="Assigned To">{{ task.assigned_to }}</td>
+              <td class="border px-4 py-2" data-label="Status">{{ task.status }}</td>
+              <td class="border px-4 py-2" data-label="Due Date">{{ task.due_date|naturaltime }}</td>
+              <td class="border px-4 py-2" data-label="Category">{{ task.category }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 {% endblock %}
 
 {% block scripts %}
-  <!-- Include any necessary scripts here if needed -->
+  <script>
+    $(document).ready(function () {
+      $('#tasks-table').DataTable()
+    })
+  </script>
 {% endblock %}

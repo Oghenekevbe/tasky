@@ -59,7 +59,6 @@ class MemberLoginView(LoginView):
 
                 # Generate tokens using the function from tokens.py
                 tokens = get_tokens_for_user(user)
-                print(tokens)
 
                 # Set cookies for JWT tokens
                 response = redirect('dashboard')
