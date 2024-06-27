@@ -66,4 +66,6 @@ Tasky is a Django-based web application designed to streamline task and user man
 * ` /change_password/`: Change password
 * ` /logout/`: Log out
 
+#### Tests
+* Rub tests : `python manage.py test`
 
