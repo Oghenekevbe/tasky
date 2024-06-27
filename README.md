@@ -20,14 +20,14 @@ Tasky is a Django-based web application designed to streamline task and user man
 3. Activate the virtual environment: `source venv/bin/activate` (on Linux/Mac) or `venv\Scripts\activate` (on Windows)
 4. Install requirements: `pip install -r requirements.txt`
 5. Run migrations: `python manage.py migrate`
-6. Create a superuser: `python manage.py createsuperuser`
+6. Create a superuser if you want to access the backend: `python manage.py createsuperuser`
+7. Register and log in once the developement server is up and running
 
 ### Running the Project
 
 1. Run the development server: `python manage.py runserver`
 2. Access the web interface at `http://localhost:8000`
-3. Access the complete API documentation at  `http://localhost:8000/api/redoc` (ReDoc)  or `http://localhost:8000/api/swagger` (Swagger)
-
+3. Access the complete API documentation at  `http://localhost:8000/api/redoc` (ReDoc) 
 
 ### API Endpoints
 

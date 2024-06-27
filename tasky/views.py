@@ -1,8 +1,8 @@
-from django.contrib.auth import get_user_model, authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, ListView, TemplateView, DetailView, View
+from django.views.generic import CreateView, ListView, TemplateView, DetailView
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -158,6 +158,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Add tokens to context
         context['jwt_access_token'] = jwt_access_token
         context['jwt_refresh_token'] = jwt_refresh_token
+        
 
         return context
 

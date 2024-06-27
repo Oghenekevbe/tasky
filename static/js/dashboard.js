@@ -24,6 +24,7 @@ $(document).ready(function () {
     const jwtAccessToken = window.jwt_access_token;
     const jwtRefreshToken = window.jwt_refresh_token;
 
+
     // Function to check if the JWT token is expired
     function isTokenExpired(token) {
         try {
@@ -261,11 +262,11 @@ $(document).ready(function () {
     }
 
     // Initial load of tasks
-    loadTasks("");
+    loadTasks(searchTerm = '');
 
 
     // this will reload the dom without page refresh every five minues
-    setInterval(loadTasks, 300000);
+    setInterval(loadTasks(searchTerm = ''), 30000);
 
 
 

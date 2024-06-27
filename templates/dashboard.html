@@ -3,14 +3,14 @@
 {% load humanize %}
 
 {% block title %}
-
+  Dashboard
 {% endblock %}
 
 {% block content %}
   <!-- script to get the jwt tokens from the backend -->
   <script>
-    const jwt_access_token = '{{ jwt_access_token }}'
-    const jwt_refresh_token = '{{ jwt_refresh_token }}'
+    var jwt_access_token = '{{jwt_access_token}}'
+    var jwt_refresh_token = '{{jwt_refresh_token}}'
   </script>
 
   <!-- Main content -->
@@ -143,81 +143,67 @@
       </div>
 
       <!-- Task Containers -->
-      <div class="container">
-        <div class="container flex flex-wrap">
-          <!-- In Progress Tasks -->
-          <div id="in-progress-tasks" class="container w-full md:w-1/3 p-2">
-            <button id="in-progress" class="flex rounded border-2 border-primary-100 p-1 text-gray-600 w-full">
-              In Progress<span id="in-progress-count" class="ml-1"></span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500 ml-auto" viewBox="0 0 16 16">
-                <!-- SVG icon -->
-              </svg>
-            </button>
-            <div id="in-progress-container" class="container flex flex-wrap p-2 space-y-10 mt-5">
-              <!-- Container for in-progress tasks -->
-            </div>
-          </div>
+      <div class="container flex flex-wrap">
+        <div id="in-progress-tasks" class="w-full md:w-1/3 p-2">
+          <button id="in-progress" class="flex rounded border-2 border-primary-100 p-1 text-gray-600 w-full">
+            In Progress<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500 ml-auto" viewBox="0 0 16 16">
+              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+            </svg>
+          </button>
+          <div id="in-progress-container" class="container flex flex-wrap p-2 space-y-10 mt-5"></div>
+        </div>
 
-          <!-- Completed Tasks -->
-          <div id="completed-tasks" class="container w-full md:w-1/3 p-2">
-            <button id="completed" class="flex rounded border-2 border-primary-100 p-1 text-gray-600 w-full">
-              Completed <span id="completed-count" class="ml-1"></span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500 ml-auto" viewBox="0 0 16 16">
-                <!-- SVG icon -->
-              </svg>
-            </button>
-            <div id="completed-container" class="container flex flex-wrap p-2 space-y-10 mt-5">
-              <!-- Container for completed tasks -->
-            </div>
-          </div>
+        <div id="completed-tasks" class="w-full md:w-1/3 p-2">
+          <button id="completed" class="flex rounded border-2 border-primary-100 p-1 text-gray-600 w-full">
+            Completed<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500 ml-auto" viewBox="0 0 16 16">
+              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+            </svg>
+          </button>
+          <div id="completed-container" class="container flex flex-wrap p-2 space-y-10 mt-5"></div>
+        </div>
 
-          <!-- Overdue Tasks -->
-          <div id="overdue-tasks" class="container w-full md:w-1/3 p-2">
-            <button id="overdue" class="flex rounded border-2 border-primary-100 p-1 text-gray-600 w-full">
-              Overdue<span id="overdue-count" class="ml-1"></span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500 ml-auto" viewBox="0 0 16 16">
-                <!-- SVG icon -->
-              </svg>
-            </button>
-            <div id="overdue-container" class="container flex flex-wrap p-2 space-y-10 mt-5">
-              <!-- Container for overdue tasks -->
-            </div>
-          </div>
+        <div id="overdue-tasks" class="w-full md:w-1/3 p-2">
+          <button id="overdue" class="flex rounded border-2 border-primary-100 p-1 text-gray-600 w-full">
+            Overdue<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-three-dots-vertical text-gray-500 ml-auto" viewBox="0 0 16 16">
+              <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0" />
+            </svg>
+          </button>
+          <div id="overdue-container" class="container flex flex-wrap p-2 space-y-10 mt-5"></div>
         </div>
       </div>
 
       <!-- Modals -->
 
       <!-- Task details Modal -->
-      <div id="task-modal" title="Task Details" style="display:none; class">
+      <div id="task-modal" title="Task Details" style="display:none;" class="rounded-lg bg-white shadow-lg p-6">
         <div id="task-details">
-          <h3>Task Details</h3>
-          <p>
-            <strong>Title:</strong> <span id="task-title"></span>
+          <h3 class="text-lg font-semibold mb-4">Task Details</h3>
+          <p class="mb-2">
+            <strong class="font-medium">Title:</strong> <span id="task-title" class="text-gray-700"></span>
           </p>
-          <p>
-            <strong>Description:</strong> <span id="task-description"></span>
+          <p class="mb-2">
+            <strong class="font-medium">Description:</strong> <span id="task-description" class="text-gray-700"></span>
           </p>
-          <p>
-            <strong>Due Date:</strong> <span id="task-due-date"></span>
+          <p class="mb-2">
+            <strong class="font-medium">Due Date:</strong> <span id="task-due-date" class="text-gray-700"></span>
           </p>
-          <p>
-            <strong>Status:</strong> <span id="task-status"></span>
+          <p class="mb-2">
+            <strong class="font-medium">Status:</strong> <span id="task-status" class="text-gray-700"></span>
           </p>
-          <p>
-            <strong>Priority:</strong> <span id="task-priority"></span>
+          <p class="mb-2">
+            <strong class="font-medium">Priority:</strong> <span id="task-priority" class="text-gray-700"></span>
           </p>
-          <p>
-            <strong>Category:</strong> <span id="task-category"></span>
+          <p class="mb-2">
+            <strong class="font-medium">Category:</strong> <span id="task-category" class="text-gray-700"></span>
           </p>
-          <p>
-            <strong>Assigned To:</strong> <span id="task-assigned-to"></span>
+          <p class="mb-2">
+            <strong class="font-medium">Assigned To:</strong> <span id="task-assigned-to" class="text-gray-700"></span>
           </p>
         </div>
       </div>
 
       <!-- Create Task Modal -->
-      <div id="create-task-modal" title="Add Task" style="display:none;">
+      <div id="create-task-modal" title="Add Task" style="display:none;" class="rounded-lg shadow-lg p-6 bg-gray-100 hover:bg-gray-200">
         <form id="CreateTaskForm" method="post">
           {% csrf_token %}
           {{ form.as_p }}
@@ -226,19 +212,19 @@
       </div>
 
       <!-- Edit Task Modal -->
-      <div id="edit-task-modal" title="Edit Task" style="display:none;">
+      <div id="edit-task-modal" title="Edit Task" style="display:none;" class="rounded-lg shadow-lg p-6 bg-gray-100 hover:bg-gray-200">
         <form id="EditTaskForm" method="post">
           {% csrf_token %}
           {{ form.as_p }}
           <input type="hidden" id="task_action" name="task_action" value="edit" />
         </form>
       </div>
-    </div>
 
-    <!-- Modal Dialog for Delete Confirmation -->
-    <div id="delete-task-dialog" title="Delete Task" style="display:none;">
-      <div>
-        <h6>Are you sure you want to delete this task?</h6>
+      <!-- Modal Dialog for Delete Confirmation -->
+      <div id="delete-task-dialog" title="Delete Task" style="display:none;" class="rounded-lg shadow-lg p-6 bg-gray-100 hover:bg-gray-200">
+        <div class="text-center space-y-4">
+          <h6 class="text-sm text-gray-800">Are you sure you want to delete this task?</h6>
+        </div>
       </div>
     </div>
   </div>
